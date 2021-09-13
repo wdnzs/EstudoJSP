@@ -25,7 +25,7 @@ public class DAOLoginRepository {
 		connection = SingleConnectionBanco.getConnection();
 	}
 
-	public boolean validarAutenticacao(ModelLogin modelLogin) throws Exception {
+	public boolean validarAutenticacao(ModelLogin modelLogin, Long userLogado) throws Exception {
 
 		String sql = "select * from model_login where login = ? and senha = ?";
 

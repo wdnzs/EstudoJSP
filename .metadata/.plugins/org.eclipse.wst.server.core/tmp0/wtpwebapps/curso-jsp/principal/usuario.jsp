@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
 	pageEncoding="ISO-8859-1"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -107,15 +108,36 @@
 													data-toggle="modal" data-target="#exampleModalUsuario">
 													Pesquisar</button>
 
-
 											</form>
-
 											<!-- Page-body end -->
+
 										</div>
 										<div id="styleSelector"></div>
 									</div>
 								</div>
 								<span id="msg">${msg}</span>
+
+								<div style="height: 300px; overflow: scroll">
+									<table class="table" id="tabelaResultadosView">
+										<thead>
+											<tr>
+												<th scope="col">ID</th>
+												<th scope="col">Nome</th>
+											</tr>
+										</thead>
+										<tbody>
+											<c:forEach items="${modelLogins}" var="ml">
+												<tr>
+													<td><c:out value="${ml.id}"></c:out> </cout></td>
+													<td><c:out value="${ml.nome}"></c:out> </cout></td>
+													<td><a class="btn btn-success"
+														href="<%= request.getContextPath() %>/ServletUsuarioController?acao=buscarEditar&id=${ml.id}">Ver</a></td>
+												</tr>
+											</c:forEach>
+										</tbody>
+									</table>
+								</div>
+
 							</div>
 						</div>
 					</div>
@@ -142,18 +164,91 @@
 					</button>
 				</div>
 				<div class="modal-body">
-				
-				
+
+					<div class="input-group mb-3">
+						<input type="text" class="form-control" placeholder="Nome"
+							aria-label="nome" id="nomeBusca" aria-describedby="basic-addon2">
+						<div class="input-group-append">
+							<button class="btn btn-success" type="button"
+								onclick="buscarUsuario();">Buscar</button>
+						</div>
+					</div>
+
+					<div style="height: 300px; overflow: scroll">
+						<table class="table" id="tabelaResultados">
+							<thead>
+								<tr>
+									<th scope="col">ID</th>
+									<th scope="col">Nome</th>
+									<th scope="col">Visualizar</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+					<span id="totalResultados"></span>
 				</div>
 				<div class="modal-footer">
-					<button type="button" class="btn btn-secondary"
-						data-dismiss="modal">Fechar</button>
+					<button type="button" class="btn btn-danger" data-dismiss="modal">Fechar</button>
 				</div>
 			</div>
 		</div>
 	</div>
 
 	<script type="text/javascript">
+		function verEditar(id) {
+			var urlAction = document.getElementById('formUser').action;
+			window.location.href = urlAction + '?acao=buscarEditar&id=' + id;
+		}
+
+		function buscarUsuario() {
+			var nomeBusca = document.getElementById('nomeBusca').value;
+
+			/*Valida a necessidade de ter valor a ser buscado no banco de dados*/
+			if (nomeBusca != null && nomeBusca != '' && nomeBusca.trim() != '') {
+
+				var urlAction = document.getElementById('formUser').action;
+				$
+						.ajax(
+								{
+									method : "get",
+									url : urlAction,
+									data : "nomeBusca=" + nomeBusca
+											+ '&acao=buscarUserAjax',
+									success : function(response) {
+
+										var json = JSON.parse(response);
+
+										$('#tabelaResultados > tbody > tr')
+												.remove();
+
+										for (var p = 0; p < json.length; p++) {
+											$('#tabelaResultados > tbody')
+													.append(
+															'<tr><td>'
+																	+ json[p].id
+																	+ '</td><td>'
+																	+ json[p].nome
+																	+ '</td><td><button onclick= "verEditar ('
+																	+ json[p].id
+																	+ ')" type="button" class="btn btn-primary btn-sm">Ver</button></td></tr>')
+
+										}
+
+										document
+												.getElementById('totalResultados').textContent = 'Resultados: '
+												+ json.length;
+
+									}
+								}).fail(
+								function(xhr, status, errorThrown) {
+									alert('Erro ao buscar usuário por nome: '
+											+ xhr.responseText);
+								});
+			}
+		}
+
 		function criaDeleteComAjax() {
 			if (confirm("Deseja realmente excluir este cadastro?")) {
 				var urlAction = document.getElementById('formUser').action;

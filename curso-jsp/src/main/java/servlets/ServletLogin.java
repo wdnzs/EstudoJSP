@@ -13,7 +13,7 @@ import model.ModelLogin;
 
 // O chamado Controller são as servlets ou ServletLoginController
 @WebServlet(urlPatterns = { "/principal/ServletLogin", "/ServletLogin" }) // Mapeamento de URL que vem da tela
-public class ServletLogin extends HttpServlet {
+public class ServletLogin extends ServletGenericUtil {
 
 	private static final long serialVersionUID = 1L;
 
@@ -54,7 +54,7 @@ public class ServletLogin extends HttpServlet {
 				modelLogin.setLogin(login);
 				modelLogin.setSenha(senha);
 
-				if (daoLoginRepository.validarAutenticacao(modelLogin)) {// Simulando login
+				if (daoLoginRepository.validarAutenticacao(modelLogin, super.getUserLogado(request))) {// Simulando login
 
 					request.getSession().setAttribute("usuario", modelLogin.getLogin());
 
